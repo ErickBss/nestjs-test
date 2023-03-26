@@ -16,9 +16,15 @@ describe('UsersController', () => {
       return { id: +id, ...userDto };
     }),
 
+    findAll: jest.fn(() => {
+      return [userDto];
+    }),
+
     update: jest.fn((id, dto) => {
       return { ...userDto, id: +id, ...dto };
     }),
+
+    remove: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -37,40 +43,62 @@ describe('UsersController', () => {
     expect(controller).toBeDefined();
   });
 
-  it('should create an user', () => {
-    expect(
-      controller.create({ name: 'John Doe', email: 'john@email.com' }),
-    ).toEqual({
-      id: expect.any(Number),
-      name: 'John Doe',
-      email: 'john@email.com',
-    });
+  describe('create', () => {
+    it('should create an user', () => {
+      expect(
+        controller.create({ name: 'John Doe', email: 'john@email.com' }),
+      ).toEqual({
+        id: expect.any(Number),
+        name: 'John Doe',
+        email: 'john@email.com',
+      });
 
-    expect(mockUsersService.create).toHaveBeenCalledWith({
-      name: 'John Doe',
-      email: 'john@email.com',
-    });
-  });
-
-  it('should return an user', () => {
-    const id = '1';
-
-    expect(controller.findOne(id)).toEqual({
-      id: +id,
-      ...userDto,
+      expect(mockUsersService.create).toHaveBeenCalledWith({
+        name: 'John Doe',
+        email: 'john@email.com',
+      });
     });
   });
 
-  it('should update an user', () => {
-    const id = '1';
-    const name = 'John Doe';
+  describe('findOne', () => {
+    it('should return an user', () => {
+      const id = '1';
 
-    expect(controller.update(id, { name })).toEqual({
-      ...userDto,
-      id: +id,
-      name,
+      expect(controller.findOne(id)).toEqual({
+        id: +id,
+        ...userDto,
+      });
     });
+  });
 
-    expect(mockUsersService.update).toHaveBeenCalledWith(+id, { name });
+  describe('findAll', () => {
+    it('should return an array of users', () => {
+      expect(controller.findAll()).toEqual([userDto]);
+
+      expect(mockUsersService.findAll).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('update', () => {
+    it('should update an user', () => {
+      const id = '1';
+      const name = 'John Doe';
+
+      expect(controller.update(id, { name })).toEqual({
+        ...userDto,
+        id: +id,
+        name,
+      });
+
+      expect(mockUsersService.update).toHaveBeenCalledWith(+id, { name });
+    });
+  });
+
+  describe('remove', () => {
+    it('should delete an user', () => {
+      expect(controller.remove('1'));
+
+      expect(mockUsersService.remove).toHaveBeenCalledWith(expect.any(Number));
+    });
   });
 });
